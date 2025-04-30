@@ -1,0 +1,27 @@
+#include <stdio.h>
+
+int main() {
+    char text[1000];
+    int k, i = 0;
+
+    printf("Enter text: ");
+    fgets(text, sizeof(text), stdin);
+
+    printf("Enter shift (1-25): ");
+    scanf("%d", &k);
+
+    if (k < 1 || k > 25) return 1;
+
+    while (text[i] != '\0') {
+        if (text[i] >= 'A' && text[i] <= 'Z')
+            text[i] = (text[i] - 'A' + k) % 26 + 'A';
+        else if (text[i] >= 'a' && text[i] <= 'z')
+            text[i] = (text[i] - 'a' + k) % 26 + 'a';
+        i++;
+    }
+
+    printf("Encrypted: %s", text);
+    return 0;
+}
+
+
