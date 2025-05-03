@@ -1,0 +1,38 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+int main() {
+    char plaintext[100], key[100], ciphertext[100];
+    int i, j, pt_len, key_len;
+
+    // Get input
+    printf("Enter plaintext: ");
+    fgets(plaintext, sizeof(plaintext), stdin);
+    printf("Enter key: ");
+    fgets(key, sizeof(key), stdin);
+
+    // Remove newline characters if any
+    plaintext[strcspn(plaintext, "\n")] = '\0';
+    key[strcspn(key, "\n")] = '\0';
+
+    pt_len = strlen(plaintext);
+    key_len = strlen(key);
+
+    // Encrypt
+    for (i = 0, j = 0; i < pt_len; i++) {
+        char pt_char = toupper(plaintext[i]);
+        char key_char = toupper(key[j % key_len]);
+
+        if (isalpha(pt_char)) {
+            ciphertext[i] = ((pt_char - 'A') + (key_char - 'A')) % 26 + 'A';
+            j++; // only advance key on letters
+        } else {
+            ciphertext[i] = plaintext[i]; // non-letters unchanged
+        }
+    }
+    ciphertext[i] = '\0';
+
+    printf("Encrypted text: %s\n", ciphertext);
+    return 0;
+}
