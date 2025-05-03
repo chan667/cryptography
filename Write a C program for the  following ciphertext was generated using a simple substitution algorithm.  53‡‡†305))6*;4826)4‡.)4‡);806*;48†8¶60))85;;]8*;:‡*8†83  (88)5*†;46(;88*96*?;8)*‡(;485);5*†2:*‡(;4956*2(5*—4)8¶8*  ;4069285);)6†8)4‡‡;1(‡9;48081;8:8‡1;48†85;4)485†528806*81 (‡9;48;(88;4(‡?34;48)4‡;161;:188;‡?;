@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+
+#define MAX_WORDS 1000
+
+// Sample beginning of Declaration (truncated for demonstration)
+const char* declaration = 
+    "When in the Course of human events it becomes necessary for one people to dissolve "
+    "the political bands which have connected them with another and to assume among the powers "
+    "of the earth, the separate and equal station to which the Laws of Nature and of Nature's God entitle them";
+
+int main() {
+    char* words[MAX_WORDS];
+    int word_count = 0;
+
+    // Tokenize declaration text
+    char decl_copy[1000];
+    strcpy(decl_copy, declaration);
+    char* token = strtok(decl_copy, " ,.'\"");
+    while (token && word_count < MAX_WORDS) {
+        words[word_count++] = token;
+        token = strtok(NULL, " ,.'\"");
+    }
+
+    // The Beale ciphertext numbers (partial and simplified)
+    int ciphertext[] = { 53, 1, 305, 6, 482, 6, 4, 806 };
+    int len = sizeof(ciphertext) / sizeof(ciphertext[0]);
+
+    printf("Decoded message: ");
+    for (int i = 0; i < len; i++) {
+        int index = ciphertext[i] - 1; // convert to 0-based index
+        if (index >= 0 && index < word_count) {
+            printf("%c", toupper(words[index][0]));
+        } else {
+            printf("?");
+        }
+    }
+    printf("\n");
+    return 0;
+}
