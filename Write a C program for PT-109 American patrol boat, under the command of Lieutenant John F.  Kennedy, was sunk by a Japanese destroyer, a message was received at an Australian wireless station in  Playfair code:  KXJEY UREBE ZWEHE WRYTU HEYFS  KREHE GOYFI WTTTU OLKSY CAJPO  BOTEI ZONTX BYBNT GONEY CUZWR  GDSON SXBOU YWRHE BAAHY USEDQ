@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define SIZE 5
+
+char matrix[SIZE][SIZE];
+
+// Remove duplicates and build matrix
+void buildMatrix(const char *key) {
+    int used[26] = {0};
+    int i, j = 0, k = 0;
+    char c;
+
+    for (i = 0; key[i] != '\0'; i++) {
+        c = toupper(key[i]);
+        if (c == 'J') c = 'I';
+        if (!used[c - 'A']) {
+            matrix[k / SIZE][k % SIZE] = c;
+            used[c - 'A'] = 1;
+            k++;
+        }
+    }
+
+    for (i = 0; i < 26; i++) {
+        if (i + 'A' == 'J') continue;
+        if (!used[i]) {
+            matrix[k / SIZE][k % SIZE] = i + 'A';
+            k++;
+        }
+    }
+}
+
+// Find position of a letter in the matrix
+void findPosition(char ch, int *row, int *col) {
+    if (ch == 'J') ch = 'I';
+    for (int i = 0; i < SIZE; i++)
+        for (int j = 0; j < SIZE; j++)
+            if (matrix[i][j] == ch) {
+                *row = i;
+                *col = j;
+                return;
+            }
+}
+
+// Decrypt a pair of characters
+void decryptPair(char a, char b, char *out1, char *out2) {
+    int r1, c1, r2, c2;
+    findPosition(a, &r1, &c1);
+    findPosition(b, &r2, &c2);
+
+    if (r1 == r2) { // same row
+        *out1 = matrix[r1][(c1 + 4) % SIZE];
+        *out2 = matrix[r2][(c2 + 4) % SIZE];
+    } else if (c1 == c2) { // same column
+        *out1 = matrix[(r1 + 4) % SIZE][c1];
+        *out2 = matrix[(r2 + 4) % SIZE][c2];
+    } else { // rectangle
+        *out1 = matrix[r1][c2];
+        *out2 = matrix[r2][c1];
+    }
+}
+
+int main() {
+    char key[] = "MONARCHY"; // change if needed
+    char ciphertext[] = 
+        "KXJEYUREBEZWEHEWRYTUHEYFS"
+        "KREHEGOYFIWTTTUOLKSYCAJPO"
+        "BOTEIZONTXBYBNTGONEYCUZWR"
+        "GDSONSXBOUYWRHEBAAHYUSEDQ";
+
+    char a, b, out1, out2;
+    int len = strlen(ciphertext);
+
+    buildMatrix(key);
+
+    printf("Decrypted message:\n");
+
+    for (int i = 0; i < len; i += 2) {
+        a = toupper(ciphertext[i]);
+        b = toupper(ciphertext[i + 1]);
+        decryptPair(a, b, &out1, &out2);
+        printf("%c%c", out1, out2);
+    }
+
+    printf("\n");
+    return 0;
+}
