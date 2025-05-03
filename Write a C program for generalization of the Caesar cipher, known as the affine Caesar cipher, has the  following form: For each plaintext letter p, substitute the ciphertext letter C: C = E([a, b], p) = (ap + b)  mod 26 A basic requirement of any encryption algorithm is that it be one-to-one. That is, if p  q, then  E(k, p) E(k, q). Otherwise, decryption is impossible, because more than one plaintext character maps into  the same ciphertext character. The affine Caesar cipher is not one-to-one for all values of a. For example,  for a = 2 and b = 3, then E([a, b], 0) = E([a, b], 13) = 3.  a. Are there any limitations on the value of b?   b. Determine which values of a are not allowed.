@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+// Function to compute GCD
+int gcd(int a, int b) {
+    while (b != 0) {
+        int temp = a % b;
+        a = b;
+        b = temp;
+    }
+    return a;
+}
+
+int main() {
+    char plaintext[100], ciphertext[100];
+    int a, b, i;
+
+    printf("Enter plaintext: ");
+    fgets(plaintext, sizeof(plaintext), stdin);
+
+    printf("Enter key a (must be coprime with 26): ");
+    scanf("%d", &a);
+    printf("Enter key b: ");
+    scanf("%d", &b);
+
+    // Validate 'a'
+    if (gcd(a, 26) != 1) {
+        printf("Error: 'a' must be coprime with 26 for the cipher to be reversible.\n");
+        return 1;
+    }
+
+    for (i = 0; plaintext[i] != '\0'; i++) {
+        char ch = plaintext[i];
+        if (isalpha(ch)) {
+            char base = isupper(ch) ? 'A' : 'a';
+            int p = ch - base;
+            int c = (a * p + b) % 26;
+            ciphertext[i] = c + base;
+        } else {
+            ciphertext[i] = ch; // Leave non-letters unchanged
+        }
+    }
+    ciphertext[i] = '\0';
+
+    printf("Encrypted text: %s\n", ciphertext);
+    return 0;
+}
