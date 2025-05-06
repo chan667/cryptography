@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <math.h>
+
+int main() {
+    double log2_25_fact = 0.0;
+    double log2_5_fact = 0.0;
+
+    // Compute log2(25!) and log2(5!)
+    for (int i = 1; i <= 25; i++) {
+        log2_25_fact += log2(i);
+        if (i <= 5)
+            log2_5_fact += log2(i);
+    }
+
+    double total_keys = log2_25_fact;
+    double unique_keys = log2_25_fact - 2 * log2_5_fact;
+
+    printf("Approximate total number of keys: 2^%.1f\n", total_keys);
+    printf("Approximate unique keys (after eliminating equivalence): 2^%.1f\n", unique_keys);
+
+    return 0;
+}
