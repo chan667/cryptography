@@ -1,0 +1,21 @@
+#include <stdio.h>
+
+int main() {
+    char matrix[5][5][5] = {
+        {"M", "F", "H", "I/J", "K"},
+        {"U", "N", "O", "P", "Q"},
+        {"Z", "V", "W", "X", "Y"},
+        {"E", "L", "A", "R", "G"},
+        {"D", "S", "T", "B", "C"}
+    };
+
+    printf("Playfair Cipher Matrix:\n\n");
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 5; j++) {
+            printf("%-4s ", matrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
