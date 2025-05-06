@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define SIZE 2
+
+// Key matrix for encryption
+int key[SIZE][SIZE] = {
+    {9, 4},
+    {5, 7}
+};
+
+// Function to convert character to number (A=0, ..., Z=25)
+int charToNum(char c) {
+    return toupper(c) - 'A';
+}
+
+// Function to convert number to character (0=A, ..., 25=Z)
+char numToChar(int n) {
+    return (n % 26) + 'A';
+}
+
+int main() {
+    char message[] = "meet me at the usual place at ten rather than eight oclock";
+    char cleaned[256];
+    int len = 0;
+
+    // Clean and uppercase the message
+    for (int i = 0; message[i]; i++) {
+        if (isalpha(message[i])) {
+            cleaned[len++] = toupper(message[i]);
+        }
+    }
+
+    // Pad with 'X' if odd length
+    if (len % 2 != 0) {
+        cleaned[len++] = 'X';
+    }
+
+    cleaned[len] = '\0';
+
+    printf("Cleaned message: %s\n", cleaned);
+    printf("Encrypted message: ");
+
+    // Encrypt the message using Hill cipher
+    for (int i = 0; i < len; i += 2) {
+        int vector[2] = { charToNum(cleaned[i]), charToNum(cleaned[i+1]) };
+        int result[2];
+
+        result[0] = (key[0][0]*vector[0] + key[0][1]*vector[1]) % 26;
+        result[1] = (key[1][0]*vector[0] + key[1][1]*vector[1]) % 26;
+
+        printf("%c%c", numToChar(result[0]), numToChar(result[1]));
+    }
+
+    printf("\n");
+    return 0;
+}
