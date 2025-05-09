@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_LEN 100
+
+// Encrypts the plaintext using the key stream
+void encrypt(char plaintext[], int key[], char ciphertext[]) {
+    for (int i = 0; plaintext[i] != '\0'; i++) {
+        if (plaintext[i] == ' ') {
+            ciphertext[i] = ' ';
+        } else {
+            char base = 'a';
+            int shift = key[i];
+            ciphertext[i] = ((plaintext[i] - base + shift) % 26) + base;
+        }
+    }
+    ciphertext[strlen(plaintext)] = '\0';
+}
+
+// Decrypts the ciphertext using the key stream
+void decrypt(char ciphertext[], int key[], char plaintext[]) {
+    for (int i = 0; ciphertext[i] != '\0'; i++) {
+        if (ciphertext[i] == ' ') {
+            plaintext[i] = ' ';
+        } else {
+            char base = 'a';
+            int shift = key[i];
+            plaintext[i] = ((ciphertext[i] - base - shift + 26) % 26) + base;
+        }
+    }
+    plaintext[strlen(ciphertext)] = '\0';
+}
+
+// Derives key stream from known plaintext and ciphertext
+void derive_key(char plaintext[], char ciphertext[], int key[]) {
+    for (int i = 0; plaintext[i] != '\0'; i++) {
+        if (plaintext[i] == ' ') {
+            key[i] = -1;  // Mark space as -1
+        } else {
+            key[i] = (ciphertext[i] - plaintext[i] + 26) % 26;
+        }
+    }
+}
+
+int main() {
+    char plaintext1[] = "send more money";
+    int key1[] = {9, 0, 1, 7, 23, 15, 21, 14, 11, 11, 2, 8, 9};
+    char ciphertext1[MAX_LEN];
+
+    // Encrypt part (a)
+    encrypt(plaintext1, key1, ciphertext1);
+    printf("Encrypted (a): %s\n", ciphertext1);
+
+    // Decrypt part (b)
+    char plaintext2[] = "cash not needed";
+    int key2[MAX_LEN];
+    char ciphertext2[MAX_LEN];
+    
+    // Use ciphertext1 from part (a) as input
+    derive_key(plaintext2, ciphertext1, key2);
+
+    printf("Key for part (b): ");
+    for (int i = 0; plaintext2[i] != '\0'; i++) {
+        if (key2[i] == -1)
+            printf("  ");
+        else
+            printf("%2d ", key2[i]);
+    }
+    printf("\n");
+
+    return 0;
+}
