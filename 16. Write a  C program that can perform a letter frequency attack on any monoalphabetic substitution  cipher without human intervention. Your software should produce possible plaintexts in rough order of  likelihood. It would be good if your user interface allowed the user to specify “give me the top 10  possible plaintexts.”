@@ -1,0 +1,120 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+#define MAX_LEN 1000
+#define ALPHABET_LEN 26
+#define MAX_GUESSES 50
+
+typedef struct {
+    char mapping[ALPHABET_LEN];
+    double score;
+    char plaintext[MAX_LEN];
+} Guess;
+
+double english_freq[ALPHABET_LEN] = {
+    12.70, 9.06, 8.17, 7.51, 6.97, 6.75, 6.33,
+    6.09, 4.25, 2.78, 2.41, 2.36, 2.23, 2.02,
+    1.93, 1.49, 0.98, 0.77, 0.15, 0.15,
+    0.10, 0.09, 0.08, 0.07, 0.05, 0.02
+};
+
+const char* english_order = "etaoinshrdlcumwfgypbvkjxqz";
+
+// Count frequencies of each letter in ciphertext
+void count_frequencies(const char *text, int freq[ALPHABET_LEN]) {
+    for (int i = 0; i < ALPHABET_LEN; i++) freq[i] = 0;
+    for (int i = 0; text[i]; i++) {
+        if (isalpha(text[i])) {
+            freq[tolower(text[i]) - 'a']++;
+        }
+    }
+}
+
+// Compare letter frequencies to English and generate a substitution guess
+void generate_mapping(int cipher_freq[ALPHABET_LEN], char mapping[ALPHABET_LEN]) {
+    int i, j;
+
+    // Create an array of indices to sort letters by frequency
+    int indices[ALPHABET_LEN];
+    for (i = 0; i < ALPHABET_LEN; i++) indices[i] = i;
+
+    // Sort letters in descending order of frequency
+    for (i = 0; i < ALPHABET_LEN - 1; i++) {
+        for (j = i + 1; j < ALPHABET_LEN; j++) {
+            if (cipher_freq[indices[j]] > cipher_freq[indices[i]]) {
+                int temp = indices[i];
+                indices[i] = indices[j];
+                indices[j] = temp;
+            }
+        }
+    }
+
+    // Generate a direct mapping using English frequency order
+    for (i = 0; i < ALPHABET_LEN; i++) {
+        mapping[indices[i]] = english_order[i];
+    }
+}
+
+// Apply mapping to ciphertext
+void decrypt(const char *ciphertext, char *plaintext, const char mapping[ALPHABET_LEN]) {
+    for (int i = 0; ciphertext[i]; i++) {
+        if (isalpha(ciphertext[i])) {
+            int index = tolower(ciphertext[i]) - 'a';
+            char subst = mapping[index];
+            plaintext[i] = isupper(ciphertext[i]) ? toupper(subst) : subst;
+        } else {
+            plaintext[i] = ciphertext[i];
+        }
+    }
+    plaintext[strlen(ciphertext)] = '\0';
+}
+
+// Score plaintext using frequency of expected letters
+double score_plaintext(const char *text) {
+    double score = 0.0;
+    int count[ALPHABET_LEN] = {0};
+    int total = 0;
+
+    for (int i = 0; text[i]; i++) {
+        if (isalpha(text[i])) {
+            int idx = tolower(text[i]) - 'a';
+            count[idx]++;
+            total++;
+        }
+    }
+
+    for (int i = 0; i < ALPHABET_LEN; i++) {
+        double freq = (double)count[i] / total * 100.0;
+        score += freq * english_freq[i];
+    }
+    return score;
+}
+
+int main() {
+    char ciphertext[MAX_LEN];
+    int top_n;
+
+    printf("Enter ciphertext:\n");
+    fgets(ciphertext, MAX_LEN, stdin);
+    ciphertext[strcspn(ciphertext, "\n")] = '\0';
+
+    printf("How many top plaintexts to display? ");
+    scanf("%d", &top_n);
+
+    int cipher_freq[ALPHABET_LEN];
+    char mapping[ALPHABET_LEN];
+    char plaintext[MAX_LEN];
+
+    count_frequencies(ciphertext, cipher_freq);
+    generate_mapping(cipher_freq, mapping);
+    decrypt(ciphertext, plaintext, mapping);
+
+    // Generate 1 guess (base model); for more, add mapping permutations
+    Guess guesses[MAX_GUESSES];
+    strcpy(guesses[0].plaintext, plaintext);
+    memcpy(guesses[0].mapping, mapping, ALPHABET_LEN);
+    guesses[0].score = score_plaintext(plaintext);
+
+    // You can expand to generate more guesses by permuting top
